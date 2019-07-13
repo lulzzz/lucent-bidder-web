@@ -1,0 +1,105 @@
+{
+    "title": "Campaign",
+    "type": "object",
+    "required": [
+        "name",
+        "status"
+    ],
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "properties": {
+        "name": {
+            "type": "string",
+            "title": "Title",
+            "default": "Don't tread on me"
+        },
+        "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "Paused",
+            "enum": [
+                "Active",
+                "Paused",
+                "BudgetExhausted",
+                "Unknown"
+            ]
+        },
+        "schedule": {
+            "type": "object",
+            "title": "Campaign Schedule",
+            "properties": {
+                "start": {
+                    "type": "string",
+                    "title": "Start Date",
+                    "format": "date-time"
+                },
+                "end": {
+                    "type": "string",
+                    "title": "End Date",
+                    "format": "date-time"
+                }
+            },
+            "required": [
+                "start"
+            ]
+        },
+        "budgetSchedule": {
+            "type": "object",
+            "title": "Budget Schedule",
+            "properties": {
+                "hourly": {
+                    "type": "number",
+                    "title": "Hourly Cap"
+                },
+                "daily": {
+                    "type": "number",
+                    "title": "Daily Cap"
+                },
+                "type": {
+                    "type": "string",
+                    "title": "Schedule Type",
+                    "default": "Metered",
+                    "enum": [
+                        "Metered",
+                        "Agressive"
+                    ]
+                }
+            },
+            "required": [
+                "type",
+                "hourly",
+                "daily"
+            ]
+        },
+        "landing": {
+            "type": "string",
+            "format": "url",
+            "title": "Landing Page"
+        },
+        "actions": {
+            "type": "array",
+            "title": "Actions",
+            "items": {
+                "type": "object",
+                "title": "Action",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "title": "Action Name"
+                    },
+                    "payout": {
+                        "type": "number",
+                        "title": "Payout"
+                    }
+                }
+            }
+        },
+        "buyerid": {
+            "type": "string",
+            "title": "Buyer Id"
+        },
+        "bundleid": {
+            "type": "string",
+            "title": "Bundle Id"
+        }
+    }
+}

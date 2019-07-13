@@ -1,0 +1,272 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "title": "Filter",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "operation": {
+                "type": "string",
+                "enum": [
+                    "eq",
+                    "neq",
+                    "gt",
+                    "gte",
+                    "lt",
+                    "lte",
+                    "in",
+                    "notin",
+                    "hasvalue"
+                ],
+                "default": "eq"
+            },
+            "values": {
+                "type": "array",
+                "items": [
+                    {
+                        "type": "object",
+                        "title": "Value",
+                        "properties": {
+                            "sval": {
+                                "type": "string"
+                            },
+                            "bval": {
+                                "type": "boolean"
+                            },
+                            "dval": {
+                                "type": "number"
+                            }
+                        },
+                        "oneOf": [
+                            {
+                                "title": "String Value",
+                                "properties": {
+                                    "sval": {
+                                        "type": "string"
+                                    },
+                                    "type": {
+                                        "type": "integer",
+                                        "default": 0,
+                                        "readOnly": true
+                                    }
+                                },
+                                "required": [
+                                    "sval"
+                                ]
+                            },
+                            {
+                                "title": "Boolean Value",
+                                "properties": {
+                                    "bval": {
+                                        "type": "boolean"
+                                    },
+                                    "type": {
+                                        "type": "integer",
+                                        "default": 1,
+                                        "readOnly": true
+                                    }
+                                },
+                                "required": [
+                                    "bval"
+                                ]
+                            },
+                            {
+                                "title": "Number Value",
+                                "properties": {
+                                    "nval": {
+                                        "type": "number"
+                                    },
+                                    "type": {
+                                        "type": "integer",
+                                        "default": 2,
+                                        "readOnly": true
+                                    }
+                                },
+                                "required": [
+                                    "nval"
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        "required": [
+            "operation",
+            "values",
+            "property",
+            "entity"
+        ],
+        "oneOf": [
+            {
+                "$id": "geo-filter",
+                "title": "Geography",
+                "type": "object",
+                "properties": {
+                    "entity": {
+                        "type": "string",
+                        "enum": [
+                            "geo"
+                        ],
+                        "default": "geo"
+                    },
+                    "property": {
+                        "type": "string",
+                        "enum": [
+                            "country",
+                            "region",
+                            "metro",
+                            "city",
+                            "zip",
+                            "isp",
+                            "type"
+                        ]
+                    }
+                }
+            },
+            {
+                "$id": "device-filter",
+                "title": "Device",
+                "type": "object",
+                "properties": {
+                    "entity": {
+                        "type": "string",
+                        "enum": [
+                            "device"
+                        ],
+                        "default": "device"
+                    },
+                    "property": {
+                        "type": "string",
+                        "enum": [
+                            "carrier",
+                            "language",
+                            "make",
+                            "model",
+                            "os",
+                            "os_version",
+                            "id",
+                            "h",
+                            "w",
+                            "javascript",
+                            "ppi"
+                        ]
+                    }
+                }
+            },
+            {
+                "$id": "impression-filter",
+                "title": "Impression",
+                "type": "object",
+                "properties": {
+                    "entity": {
+                        "type": "string",
+                        "enum": [
+                            "impression"
+                        ],
+                        "default": "impression"
+                    },
+                    "property": {
+                        "type": "string",
+                        "enum": [
+                            "id",
+                            "displayManager",
+                            "displayManagerVersion",
+                            "isFullscreen",
+                            "tagId",
+                            "bidFloor",
+                            "bidCurrency",
+                            "iframeBusters",
+                            "isSecure",
+                            "isClickNative"
+                        ]
+                    }
+                }
+            },
+            {
+                "$id": "user-filter",
+                "title": "User",
+                "type": "object",
+                "properties": {
+                    "entity": {
+                        "type": "string",
+                        "enum": [
+                            "user"
+                        ],
+                        "default": "user"
+                    },
+                    "property": {
+                        "type": "string",
+                        "enum": [
+                            "id",
+                            "buyerId",
+                            "yob",
+                            "gender",
+                            "keywords"
+                        ]
+                    }
+                }
+            },
+            {
+                "$id": "app-filter",
+                "title": "Application",
+                "type": "object",
+                "properties": {
+                    "entity": {
+                        "type": "string",
+                        "enum": [
+                            "app"
+                        ],
+                        "default": "app"
+                    },
+                    "property": {
+                        "type": "string",
+                        "enum": [
+                            "id",
+                            "name",
+                            "domain",
+                            "appCategory",
+                            "sectionCategory",
+                            "pageCategory",
+                            "version",
+                            "bundle",
+                            "isPaid",
+                            "keywords",
+                            "storeUrl"
+                        ]
+                    }
+                }
+            },
+            {
+                "$id": "site-filter",
+                "title": "Site",
+                "type": "object",
+                "properties": {
+                    "entity": {
+                        "type": "string",
+                        "enum": [
+                            "site"
+                        ],
+                        "default": "site"
+                    },
+                    "property": {
+                        "type": "string",
+                        "enum": [
+                            "id",
+                            "name",
+                            "domain",
+                            "siteCategory",
+                            "sectionCategory",
+                            "pageCategory",
+                            "page",
+                            "referrerUrl",
+                            "searchUrl",
+                            "isMobileOptimized",
+                            "keywords"
+                        ]
+                    }
+                }
+            }
+        ]
+    }
+}
