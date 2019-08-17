@@ -70,6 +70,14 @@
                 "daily"
             ]
         },
+        "maxcpm":{
+            "type":"number",
+            "title":"Max CPM"
+        },
+        "targetcpm":{
+            "type":"number",
+            "title":"Target CPM"
+        },
         "landing": {
             "type": "string",
             "format": "url",

@@ -1,7 +1,7 @@
 
 import Axios from 'axios';
 
-import token from './token.txt';
+import { token } from './token.json';
 
 
 Axios.interceptors.request.use((config) => {
@@ -11,7 +11,7 @@ Axios.interceptors.request.use((config) => {
 })
 
 const toDateTime = (i) => {
-    if(i == 0) return null;
+    if (i === 0) return null;
     try {
         return new Date((i - 116444736000000000) / 1e4).toISOString()
     } catch (error) {
@@ -31,7 +31,7 @@ const fromCampaignStatus = (status) => {
 
 
 const toFiletime = (str) => {
-    if(str == null) return null;
+    if (str == null) return null;
 
     try {
         return new Date(str).getTime() * 1e4 + 116444736000000000;
@@ -74,8 +74,18 @@ export const fromUICampaign = (campaign) => {
     if (campaign.schedule != null) {
         campaign.schedule.start = toFiletime(campaign.schedule.start);
         campaign.schedule.end = toFiletime(campaign.schedule.end);
-        if(campaign.schedule.end == null)
+        if (campaign.schedule.end == null)
             delete campaign.schedule.end;
+    }
+
+    if (campaign.filters != null) {
+        campaign['jsonFilters'] = campaign.filters;
+        delete campaign.filters;
+    }
+
+    if (campaign.targets != null) {
+        campaign['jsonTargets'] = campaign.targets;
+        delete campaign.targets;
     }
 
     if (campaign.budgetSchedule != null)
@@ -93,7 +103,7 @@ export const toUICampaign = (campaign) => {
     if (campaign.schedule != null) {
         campaign.schedule.start = toDateTime(campaign.schedule.start);
         campaign.schedule.end = toDateTime(campaign.schedule.end);
-        if(campaign.schedule.end == null)
+        if (campaign.schedule.end == null)
             delete campaign.schedule.end;
     }
 
@@ -114,7 +124,8 @@ export const getAllCampaigns = () => {
 }
 
 export const createCampaign = (campaign) => {
-    return Axios.post('https://orchestration.lucentbid.com/api/campaigns/' + campaign.id, campaign).then((resp) => {
+    console.log(JSON.stringify(campaign));
+    return Axios.post('https://orchestration.lucentbid.com/api/campaigns', campaign).then((resp) => {
         if (resp.status === 201) {
             let campaign = resp.data
 
