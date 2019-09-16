@@ -6,20 +6,46 @@ import Nav from 'react-bootstrap/Nav'
 import Navbar from 'react-bootstrap/Navbar'
 import NavDropdown from 'react-bootstrap/NavDropdown'
 import Campaigns from './campaign'
+import Exchange from './exchange'
+import { getExchange, getAllCampaigns } from '../util'
+import { exchangeId } from '../token.json';
 
 class LucentMenu extends React.Component {
 
+    constructor(props) {
+        super(props);
+        this.state = {
+            campaigns: null,
+            exchange: null
+        }
+    }
+
+    componentDidMount() {
+        getAllCampaigns().then(data => {
+            this.setState({ campaigns: data });
+        })
+
+        getExchange(exchangeId).then(data => {
+            this.setState({ exchange: data });
+        })
+    }
+
     render() {
         const handleSelect = eventKey => {
+
+            let element = document.getElementById("contents");
+            if (element.firstChild) {
+                ReactDOM.unmountComponentAtNode(element)
+            }
+
             switch (eventKey) {
                 case "Campaigns":
-                    ReactDOM.render(<Campaigns />, document.getElementById('contents'));
+                    ReactDOM.render(<Campaigns campaigns={this.state.campaigns} />, document.getElementById('contents'));
+                    break;
+                case "Exchanges":
+                    ReactDOM.render(<Exchange exchange={this.state.exchange} campaigns={this.state.campaigns} />, document.getElementById('contents'));
                     break;
                 default:
-                    let element = document.getElementById("contents");
-                    if (element.firstChild) {
-                        ReactDOM.unmountComponentAtNode(element)
-                    }
                     break;
             }
         }

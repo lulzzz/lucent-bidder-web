@@ -163,4 +163,17 @@ export const getCampaign = (id) => {
     });
 }
 
+export const getExchange = (id) => {
+    return Axios.get('https://orchestration.lucentbid.com/api/exchanges/' + id).then((resp) => {
+        if (resp.status === 200) {
+            let exchange = resp.data
+
+            exchange['etag'] = resp.headers['x-lucent-etag']
+            return exchange;
+        }
+
+        return null
+    });
+}
+
 export default getAllCampaigns;

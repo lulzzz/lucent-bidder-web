@@ -1,12 +1,14 @@
 import React from 'react';
-import { toUICampaign, getAllCampaigns, getCampaign, updateCampaign, fromUICampaign, createCampaign } from "../util"
+import { toUIexchange, getAllexchanges, getexchange, updateexchange, fromUIexchange, createexchange } from "../util"
 import { Form, FormControl } from 'react-jsonschema-form'
 import Button from 'react-bootstrap/Button'
 import Nav from 'react-bootstrap/Nav'
 import Navbar from 'react-bootstrap/Navbar'
 import NavDropdown from 'react-bootstrap/NavDropdown'
+import Campaigns from './campaign'
 
-class CampaignSummary extends React.Component {
+
+class ExchangeSummary extends React.Component {
 
     constructor(props, context) {
         super(props, context);
@@ -16,29 +18,30 @@ class CampaignSummary extends React.Component {
         this.handleChange = this.handleChange.bind(this);
 
         let currentJson = {}
-        if (this.props.campaign != null) {
-            console.log(JSON.stringify(this.props.campaign))
-            currentJson['name'] = this.props.campaign.name;
+        if (this.props.exchange != null) {
+            console.log(JSON.stringify(this.props.exchange))
+            currentJson['name'] = this.props.exchange.name;
         }
 
         this.state = {
             summary: this.props.summary,
             edit: false,
-            campaign: this.props.campaign,
+            exchange: this.props.exchange,
             current: currentJson,
-            updated: false
+            updated: false,
+            campaigns: this.props.campaigns
         }
     }
 
     handleSubmit(e) {
         e.preventDefault();
         if (this.state.updated && this.props.onUpdate != null) {
-            let campaign = this.state.campaign;
-            if (campaign == null) campaign = {}
-            campaign['name'] = this.state.current['name'];
+            let exchange = this.state.exchange;
+            if (exchange == null) exchange = {}
+            exchange['name'] = this.state.current['name'];
 
-            this.props.onUpdate(campaign)
-            this.setState({ edit: false, campaign: campaign })
+            this.props.onUpdate(exchange)
+            this.setState({ edit: false, exchange: exchange })
         }
         else
             this.setState({ edit: false })
@@ -75,6 +78,9 @@ class CampaignSummary extends React.Component {
                     <div className="row">
                         <label>Name: <label>{this.state.current.hasOwnProperty('name') ? this.state.current.name : ''}</label></label>
                     </div>
+                    <div className="row">
+                        <Campaigns campaigns={this.state.campaigns} />
+                    </div>
                     <button onClick={this.handleEdit} className="btn btn-primary">Edit</button>
                 </div>
             </div>
@@ -82,7 +88,7 @@ class CampaignSummary extends React.Component {
     }
 }
 
-class CampaignBudget extends React.Component {
+class ExchangeBudget extends React.Component {
 
     constructor(props, context) {
         super(props, context);
@@ -92,15 +98,15 @@ class CampaignBudget extends React.Component {
         this.handleChange = this.handleChange.bind(this);
 
         let currentJson = {}
-        if (this.props.campaign != null) {
-            console.log(JSON.stringify(this.props.campaign))
-            currentJson['budgetSchedule'] = this.props.campaign.budgetSchedule;
+        if (this.props.exchange != null) {
+            console.log(JSON.stringify(this.props.exchange))
+            currentJson['budgetSchedule'] = this.props.exchange.budgetSchedule;
         }
 
         this.state = {
             summary: this.props.summary,
             edit: false,
-            campaign: this.props.campaign,
+            exchange: this.props.exchange,
             current: currentJson,
             updated: false
         }
@@ -109,12 +115,12 @@ class CampaignBudget extends React.Component {
     handleSubmit(e) {
         e.preventDefault();
         if (this.state.updated && this.props.onUpdate != null) {
-            let campaign = this.state.campaign;
-            if (campaign == null) campaign = {}
-            campaign['budgetSchedule'] = this.state.current['budgetSchedule'];
+            let exchange = this.state.exchange;
+            if (exchange == null) exchange = {}
+            exchange['budgetSchedule'] = this.state.current['budgetSchedule'];
 
-            this.props.onUpdate(campaign)
-            this.setState({ edit: false, campaign: campaign })
+            this.props.onUpdate(exchange)
+            this.setState({ edit: false, exchange: exchange })
         }
         else
             this.setState({ edit: false })
@@ -156,107 +162,31 @@ class CampaignBudget extends React.Component {
     }
 }
 
-class CampaignMetadata extends React.Component {
-    constructor(props, context) {
-        super(props, context);
-
-        this.state = {
-            campaign: this.props.campaign
-        };
-    }
-
-    render() {
-
-        return (<tr className='m-1' id={this.state.campaign.id} onClick={() => this.props.showCampaign(this.state.campaign)}>
-            <td scope='row'>{this.state.campaign.id}</td>
-            <td>{this.state.campaign.name}</td>
-            <td>{this.state.campaign.status}</td>
-            <td>{this.state.campaign.schedule.start}</td>
-            <td>{this.state.campaign.schedule.end}</td>
-        </tr>)
-    }
-}
-
-class Campaigns extends React.Component {
-    constructor(props) {
-        super(props);
-        this.showCampaign = this.showCampaign.bind(this);
-        this.state = {
-            show: false,
-            campaign: null,
-            campaigns: this.props.campaigns,
-        }
-    }
-
-    showCampaign(e) {
-        if (e == null) return
-        console.log(e)
-        if (this.state.campaigns != null) {
-            console.log('searching for campaign : ' + e.id)
-            let c = this.state.campaigns.find((c) => { return c.id === e.id; })
-            console.log(c)
-            this.setState({ campaign: c })
-        } else {
-            console.log('fooey')
-        }
-    }
-
-    // componentDidMount() {
-    //     getAllCampaigns().then(data => {
-    //         this.setState({ campaigns: data });
-    //     })
-    // }
-
-    render() {
-        if (this.state.campaigns == null)
-            return (<div className='container'>Loading...</div>)
-
-        if (this.state.campaign != null) {
-            console.log('returning summary')
-            return (<LucentCampaign campaign={this.state.campaign} />)
-        }
-
-        return (<div className='container'>
-            <table className="table table-hover">
-                <caption>All campaigns</caption>
-                <thead className='thead-light'>
-                    <tr>
-                        <th scope='col'>Id</th>
-                        <th scope='col'>Name</th>
-                        <th scope='col'>Status</th>
-                        <th scope='col'>Start</th>
-                        <th scope='col'>End</th>
-                        <th scope='col'>Options</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {
-                        this.state.campaigns.map((item, key) => {
-                            return <CampaignMetadata campaign={toUICampaign(item)} key={item.id} showCampaign={this.showCampaign} />
-                        })
-                    }
-                </tbody>
-            </table>
-        </div>
-        )
-    }
-}
-
-class LucentCampaign extends React.Component {
+class Exchange extends React.Component {
 
     constructor(props, context) {
         super(props, context);
+
+        let campaigns = []
+        this.props.exchange.campaigns.forEach(element => {
+            let c = this.props.campaigns.find((c) => { return c.id === element; })
+            if(c != null){
+                console.log('Found : ' + element)
+                campaigns.push(c)
+            }
+        });
 
         this.onUpdate = this.onUpdate.bind(this);
 
         this.state = {
-            campaign: this.props.campaign,
+            exchange: this.props.exchange,
+            campaigns: campaigns,
             updated: false
         }
     }
 
-    onUpdate(campaign) {
-        this.setState({ campaign: campaign, updated: true })
+    onUpdate(exchange) {
+        this.setState({ exchange: exchange, updated: true })
     }
 
     render() {
@@ -266,12 +196,12 @@ class LucentCampaign extends React.Component {
                 {updatePanel}
                 <div className="panel panel-default">
                     <div className="panel-body">
-                        <CampaignSummary campaign={this.state.campaign} onUpdate={this.onUpdate} />
+                        <ExchangeSummary exchange={this.state.exchange} campaigns={this.state.campaigns} onUpdate={this.onUpdate} />
                     </div>
                 </div>
                 <div className="panel panel-default">
                     <div className="panel-body">
-                        <CampaignBudget campaign={this.state.campaign} onUpdate={this.onUpdate} />
+                        <ExchangeBudget exchange={this.state.exchange} onUpdate={this.onUpdate} />
                     </div>
                 </div>
             </div>;
@@ -280,4 +210,4 @@ class LucentCampaign extends React.Component {
     }
 }
 
-export default Campaigns;
+export default Exchange;
