@@ -1,0 +1,86 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ template "lucent-ui.fullname" . }}
+  labels:
+    app: {{ template "lucent-ui.name" . }}
+    chart: {{ template "lucent-ui.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  minReadySeconds: 5
+  progressDeadlineSeconds: 600
+  selector:
+    matchLabels:
+      app: {{ template "lucent-ui.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "lucent-ui.name" . }}
+        release: {{ .Release.Name }}
+        component: lucent-ui
+      annotations:
+        timstamp: "{{ date "20060102150405" .Release.Time }}"
+    spec:
+      restartPolicy: Always
+      dnsPolicy: ClusterFirst
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+    {{- with .Values.hostAlias }}
+      hostAliases:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - "/bin/sh"
+            - "-ec"
+            - |
+              echo "Getting token configuration"
+              cp /etc/config/*.json ./src
+
+              echo "Starting the lucent-ui"
+              npm start
+          volumeMounts:
+            - mountPath: /etc/config
+              name: app-config
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+      volumes:
+        - name: app-config
+          configMap:
+            name: lucent-ui-config

@@ -15,6 +15,7 @@
     "react-jsonschema-form": "^1.6.1",
     "react-scripts": "3.0.1",
     "reactstrap": "^8.0.0",
+    "serve": "^11.1.0",
     "typescript": "^3.5.2"
   },
   "scripts": {

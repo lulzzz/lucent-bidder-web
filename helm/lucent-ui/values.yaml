@@ -1,0 +1,42 @@
+replicaCount: 1
+
+fullnameOverride: lucent-ui
+
+image:
+  repository: telefrek/lucent-ui
+  tag: 0.1-alpha
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+
+resources: 
+  limits:
+   memory: 1Gi
+   cpu: 1
+  requests:
+   memory: 256Mi
+   cpu: .25
+
+hostAlias: []
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      podAffinityTerm:
+        labelSelector:
+          matchExpression:
+          - key: component
+            operator: In
+            values:
+            - lucent-ui
+        topologyKey: kubernetes.io/hostname

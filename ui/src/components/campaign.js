@@ -1,10 +1,5 @@
 import React from 'react';
-import { toUICampaign, getAllCampaigns, getCampaign, updateCampaign, fromUICampaign, createCampaign } from "../util"
-import { Form, FormControl } from 'react-jsonschema-form'
-import Button from 'react-bootstrap/Button'
-import Nav from 'react-bootstrap/Nav'
-import Navbar from 'react-bootstrap/Navbar'
-import NavDropdown from 'react-bootstrap/NavDropdown'
+import JsonTarget from './targets'
 
 class CampaignSummary extends React.Component {
 
@@ -17,7 +12,6 @@ class CampaignSummary extends React.Component {
 
         let currentJson = {}
         if (this.props.campaign != null) {
-            console.log(JSON.stringify(this.props.campaign))
             currentJson['name'] = this.props.campaign.name;
         }
 
@@ -68,14 +62,33 @@ class CampaignSummary extends React.Component {
             )
         }
 
+        var targets = null;
+        if (this.state.campaign.hasOwnProperty('jsonTargets')) {
+            targets = []
+            this.state.campaign.jsonTargets.forEach((target, i) => {
+                targets.push(<JsonTarget key={i} target={target} index={i} />)
+            });
+        }
+
         return (
             <div className="card">
-                <div className="card-header">Summary</div>
-                <div className="card-body">
-                    <div className="row">
-                        <label>Name: <label>{this.state.current.hasOwnProperty('name') ? this.state.current.name : ''}</label></label>
+                <div className="card-header" id="headingOne">
+                    <h5 className="mb-0">
+                        <button className="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            Summary
+                </button>
+                    </h5>
+                </div>
+                <div id="collapseOne" className="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+                    <div className="card-body">
+                        <div className="row">
+                            <label>Name: <label>{this.state.current.hasOwnProperty('name') ? this.state.current.name : ''}</label></label>
+                        </div>
+                        <div className="row">
+                            {targets}
+                        </div>
+                        <button onClick={this.handleEdit} className="btn btn-primary">Edit</button>
                     </div>
-                    <button onClick={this.handleEdit} className="btn btn-primary">Edit</button>
                 </div>
             </div>
         );
@@ -93,7 +106,6 @@ class CampaignBudget extends React.Component {
 
         let currentJson = {}
         if (this.props.campaign != null) {
-            console.log(JSON.stringify(this.props.campaign))
             currentJson['budgetSchedule'] = this.props.campaign.budgetSchedule;
         }
 
@@ -135,21 +147,28 @@ class CampaignBudget extends React.Component {
     }
 
     render() {
-        console.log(this.state.current)
         return (
             <div className="card">
-                <div className="card-header">Budget - Edit</div>
-                <div className="card-body">
-                    <form {...this.state.edit ? {} : { readOnly: true }} onSubmit={this.handleSubmit}>
-                        <div className="row">
-                            <label htmlFor="hourly">Hourly</label>
-                            <input id="hourly" name="hourly" type="number" defaultValue={this.state.current.hasOwnProperty('budgetSchedule') ? this.state.current.budgetSchedule.hourly : 0} onChange={this.handleChange} />
-                        </div>
-                        <div className="row">
-                            <input type="submit" />
-                        </div>
-                    </form>
-                    {this.state.edit ? null : <button onClick={this.handleEdit} className="btn btn-primary">Edit</button>}
+                <div className="card-header" id="headingTwo">
+                    <h5 className="mb-0">
+                        <button className="btn btn-link" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+                            Budget
+            </button>
+                    </h5>
+                </div>
+                <div id="collapseTwo" className="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+                    <div className="card-body">
+                        <form {...this.state.edit ? {} : { readOnly: true }} onSubmit={this.handleSubmit}>
+                            <div className="row">
+                                <label htmlFor="hourly">Hourly</label>
+                                <input id="hourly" name="hourly" type="number" defaultValue={this.state.current.hasOwnProperty('budgetSchedule') ? this.state.current.budgetSchedule.hourly : 0} onChange={this.handleChange} />
+                            </div>
+                            <div className="row">
+                                <input type="submit" />
+                            </div>
+                        </form>
+                        {this.state.edit ? null : <button onClick={this.handleEdit} className="btn btn-primary">Edit</button>}
+                    </div>
                 </div>
             </div>
         )
@@ -181,6 +200,7 @@ class Campaigns extends React.Component {
     constructor(props) {
         super(props);
         this.showCampaign = this.showCampaign.bind(this);
+        this.hideCampaign = this.hideCampaign.bind(this);
         this.state = {
             show: false,
             campaign: null,
@@ -190,15 +210,16 @@ class Campaigns extends React.Component {
 
     showCampaign(e) {
         if (e == null) return
-        console.log(e)
         if (this.state.campaigns != null) {
-            console.log('searching for campaign : ' + e.id)
             let c = this.state.campaigns.find((c) => { return c.id === e.id; })
-            console.log(c)
             this.setState({ campaign: c })
         } else {
-            console.log('fooey')
+            console.log('ERROR: This shouldn\'t be possible')
         }
+    }
+
+    hideCampaign() {
+        this.setState({ campaign: null });
     }
 
     // componentDidMount() {
@@ -212,8 +233,11 @@ class Campaigns extends React.Component {
             return (<div className='container'>Loading...</div>)
 
         if (this.state.campaign != null) {
-            console.log('returning summary')
-            return (<LucentCampaign campaign={this.state.campaign} />)
+            return (
+                <div className='container'>
+                    <LucentCampaign campaign={this.state.campaign} />
+                    <button className="btn-secondary" onClick={this.hideCampaign}>Back</button>
+                </div>)
         }
 
         return (<div className='container'>
@@ -232,7 +256,7 @@ class Campaigns extends React.Component {
                 <tbody>
                     {
                         this.state.campaigns.map((item, key) => {
-                            return <CampaignMetadata campaign={toUICampaign(item)} key={item.id} showCampaign={this.showCampaign} />
+                            return <CampaignMetadata campaign={item} key={item.id} showCampaign={this.showCampaign} />
                         })
                     }
                 </tbody>
@@ -262,18 +286,10 @@ class LucentCampaign extends React.Component {
     render() {
         let updatePanel = this.state.updated ? <div className="row d-flex justify-content-center"><button className="btn btn-primary">Update</button><button className="btn btn-secondary">Cancel</button></div> : <div className="row"></div>;
         let currentView =
-            <div className="panel-group">
+            <div id="accordion">
                 {updatePanel}
-                <div className="panel panel-default">
-                    <div className="panel-body">
-                        <CampaignSummary campaign={this.state.campaign} onUpdate={this.onUpdate} />
-                    </div>
-                </div>
-                <div className="panel panel-default">
-                    <div className="panel-body">
-                        <CampaignBudget campaign={this.state.campaign} onUpdate={this.onUpdate} />
-                    </div>
-                </div>
+                <CampaignSummary campaign={this.state.campaign} onUpdate={this.onUpdate} />
+                <CampaignBudget campaign={this.state.campaign} onUpdate={this.onUpdate} />
             </div>;
 
         return currentView;

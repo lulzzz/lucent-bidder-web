@@ -113,19 +113,35 @@ export const toUICampaign = (campaign) => {
     return campaign;
 }
 
-export const getAllCampaigns = () => {
-    return Axios.get('https://orchestration.lucentbid.com/api/campaigns').then((resp) => {
+export const getAllCreatives = () => {
+    return Axios.get('https://orchestration.lucentbid.com/api/creatives').then((resp) => {
+        let creatives = [];
         if (resp.status === 200) {
-            return resp.data
+            resp.data.forEach(element => {
+                creatives.push(element);
+            });
         }
 
-        return []
+        return creatives;
+    });
+}
+
+export const getAllCampaigns = () => {
+    return Axios.get('https://orchestration.lucentbid.com/api/campaigns').then((resp) => {
+        let campaigns = [];
+        if (resp.status === 200) {
+            resp.data.forEach(element => {
+                campaigns.push(toUICampaign(element));
+            });
+        }
+
+        return campaigns;
     });
 }
 
 export const createCampaign = (campaign) => {
     console.log(JSON.stringify(campaign));
-    return Axios.post('https://orchestration.lucentbid.com/api/campaigns', campaign).then((resp) => {
+    return Axios.post('https://orchestration.lucentbid.com/api/campaigns', fromUICampaign(campaign)).then((resp) => {
         if (resp.status === 201) {
             let campaign = resp.data
 
@@ -138,12 +154,12 @@ export const createCampaign = (campaign) => {
 }
 
 export const updateCampaign = (campaign) => {
-    return Axios.put('https://orchestration.lucentbid.com/api/campaigns/' + campaign.id, campaign, { headers: { 'x-lucent-etag': campaign.etag } }).then((resp) => {
+    return Axios.put('https://orchestration.lucentbid.com/api/campaigns/' + campaign.id, fromUICampaign(campaign), { headers: { 'x-lucent-etag': campaign.etag } }).then((resp) => {
         if (resp.status === 202) {
             let campaign = resp.data
 
             campaign['etag'] = resp.headers['x-lucent-etag']
-            return campaign;
+            return toUICampaign(campaign);
         }
 
         return null
@@ -156,7 +172,7 @@ export const getCampaign = (id) => {
             let campaign = resp.data
 
             campaign['etag'] = resp.headers['x-lucent-etag']
-            return campaign;
+            return toUICampaign(campaign);
         }
 
         return null

@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "lucent-ui.fullname" . }}
+  labels:
+    app: {{ template "lucent-ui.name" . }}
+    chart: {{ template "lucent-ui.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    component: lucent-ui
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      port: 80
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ template "lucent-ui.name" . }}
+    release: {{ .Release.Name }}

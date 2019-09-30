@@ -7,8 +7,9 @@ import Navbar from 'react-bootstrap/Navbar'
 import NavDropdown from 'react-bootstrap/NavDropdown'
 import Campaigns from './campaign'
 import Exchange from './exchange'
-import { getExchange, getAllCampaigns } from '../util'
+import { getExchange, getAllCampaigns, getAllCreatives } from '../util'
 import { exchangeId } from '../token.json';
+import Creatives from './creative';
 
 class LucentMenu extends React.Component {
 
@@ -28,6 +29,10 @@ class LucentMenu extends React.Component {
         getExchange(exchangeId).then(data => {
             this.setState({ exchange: data });
         })
+
+        getAllCreatives().then(data => {
+            this.setState({ creatives: data });
+        })
     }
 
     render() {
@@ -40,10 +45,13 @@ class LucentMenu extends React.Component {
 
             switch (eventKey) {
                 case "Campaigns":
-                    ReactDOM.render(<Campaigns campaigns={this.state.campaigns} />, document.getElementById('contents'));
+                    ReactDOM.render(<Campaigns campaigns={this.state.campaigns} creatives={this.state.creatives} />, document.getElementById('contents'));
                     break;
                 case "Exchanges":
-                    ReactDOM.render(<Exchange exchange={this.state.exchange} campaigns={this.state.campaigns} />, document.getElementById('contents'));
+                    ReactDOM.render(<Exchange exchange={this.state.exchange} campaigns={this.state.campaigns} creatives={this.state.creatives} />, document.getElementById('contents'));
+                    break;
+                case "Creatives":
+                    ReactDOM.render(<Creatives creatives={this.state.creatives} />, document.getElementById('contents'));
                     break;
                 default:
                     break;
