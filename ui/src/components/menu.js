@@ -1,7 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Form, FormControl } from 'react-jsonschema-form'
-import Button from 'react-bootstrap/Button'
 import Nav from 'react-bootstrap/Nav'
 import Navbar from 'react-bootstrap/Navbar'
 import NavDropdown from 'react-bootstrap/NavDropdown'
@@ -45,7 +43,7 @@ class LucentMenu extends React.Component {
 
             switch (eventKey) {
                 case "Campaigns":
-                    ReactDOM.render(<Campaigns campaigns={this.state.campaigns} creatives={this.state.creatives} />, document.getElementById('contents'));
+                    ReactDOM.render(<Campaigns ceratives={this.state.creatives} campaigns={this.state.campaigns} creatives={this.state.creatives} />, document.getElementById('contents'));
                     break;
                 case "Exchanges":
                     ReactDOM.render(<Exchange exchange={this.state.exchange} campaigns={this.state.campaigns} creatives={this.state.creatives} />, document.getElementById('contents'));
@@ -60,7 +58,7 @@ class LucentMenu extends React.Component {
 
         return (
             <Navbar bg="light" variant="light" expand="lg" >
-                <Navbar.Brand><img src="/images/lucent-logo.svg" style={{ height: '75px' }} /></Navbar.Brand>
+                <Navbar.Brand><img src="/images/lucent-logo.svg" alt="LucentBid" style={{ height: '75px' }} /></Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav fill variant="tabs" defaultActiveKey="/home" onSelect={handleSelect}>

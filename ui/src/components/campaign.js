@@ -1,5 +1,11 @@
 import React from 'react';
-import JsonTarget from './targets'
+import Form from 'react-bootstrap/Form'
+import Col from 'react-bootstrap/Col'
+import Card from 'react-bootstrap/Card'
+import Accordion from 'react-bootstrap/Accordion'
+import CampaignTargets from './campaign/CampaignTargets'
+import CampaignFilters from './campaign/CampaignFilters'
+import CampaignCreative from './campaign/CampaignCreative';
 
 class CampaignSummary extends React.Component {
 
@@ -7,8 +13,6 @@ class CampaignSummary extends React.Component {
         super(props, context);
 
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.handleEdit = this.handleEdit.bind(this);
-        this.handleChange = this.handleChange.bind(this);
 
         let currentJson = {}
         if (this.props.campaign != null) {
@@ -38,60 +42,30 @@ class CampaignSummary extends React.Component {
             this.setState({ edit: false })
     }
 
-    handleChange(e) {
-        this.setState({ current: { [e.target.name]: e.target.value }, updated: true })
-    }
-
-    handleEdit() {
-        this.setState({ edit: true })
-    }
-
     render() {
-        if (this.state.edit) {
-            return (
-                <div className="card">
-                    <div className="card-header">Summary - Edit</div>
-                    <div className="card-body">
-                        <form onSubmit={this.handleSubmit}>
-                            <label htmlFor="name">Name</label>
-                            <input id="name" name="name" type="text" defaultValue={this.state.current.hasOwnProperty('name') ? this.state.current.name : ''} onChange={this.handleChange} />
-                            <input type="submit" />
-                        </form>
-                    </div>
-                </div>
-            )
-        }
-
-        var targets = null;
-        if (this.state.campaign.hasOwnProperty('jsonTargets')) {
-            targets = []
-            this.state.campaign.jsonTargets.forEach((target, i) => {
-                targets.push(<JsonTarget key={i} target={target} index={i} />)
-            });
-        }
-
         return (
-            <div className="card">
-                <div className="card-header" id="headingOne">
-                    <h5 className="mb-0">
-                        <button className="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                            Summary
-                </button>
-                    </h5>
-                </div>
-                <div id="collapseOne" className="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
-                    <div className="card-body">
-                        <div className="row">
-                            <label>Name: <label>{this.state.current.hasOwnProperty('name') ? this.state.current.name : ''}</label></label>
-                        </div>
-                        <div className="row">
-                            {targets}
-                        </div>
-                        <button onClick={this.handleEdit} className="btn btn-primary">Edit</button>
-                    </div>
-                </div>
-            </div>
-        );
+            <Card>
+                <Accordion.Toggle as={Card.Header} eventKey="summary">Summary</Accordion.Toggle>
+                <Accordion.Collapse eventKey="summary">
+                    <Card.Body>
+                        <Form noValidate onSubmit={this.handleSubmit}>
+                            <Form.Row>
+                                <Form.Group as={Col}>
+                                    <Form.Label>Name</Form.Label>
+                                    <Form.Control as='input' type='text'
+                                        defaultValue={this.state.current.name}
+                                        onChange={(e) => {
+                                            let current = this.state.current;
+                                            current.name = e.target.value
+                                            this.setState({ current: current, edit: true })
+                                        }} />
+                                </Form.Group>
+                            </Form.Row>
+                        </Form>
+                    </Card.Body>
+                </Accordion.Collapse>
+            </Card>
+        )
     }
 }
 
@@ -134,7 +108,7 @@ class CampaignBudget extends React.Component {
 
     handleChange(e) {
         let v = parseInt(e.target.value)
-        if (v != NaN) {
+        if (!isNaN(v)) {
             let currentJson = this.state.current.budgetSchedule;
             if (currentJson == null) currentJson = {}
             currentJson[e.target.name] = v
@@ -148,29 +122,24 @@ class CampaignBudget extends React.Component {
 
     render() {
         return (
-            <div className="card">
-                <div className="card-header" id="headingTwo">
-                    <h5 className="mb-0">
-                        <button className="btn btn-link" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
-                            Budget
-            </button>
-                    </h5>
-                </div>
-                <div id="collapseTwo" className="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
-                    <div className="card-body">
-                        <form {...this.state.edit ? {} : { readOnly: true }} onSubmit={this.handleSubmit}>
-                            <div className="row">
-                                <label htmlFor="hourly">Hourly</label>
-                                <input id="hourly" name="hourly" type="number" defaultValue={this.state.current.hasOwnProperty('budgetSchedule') ? this.state.current.budgetSchedule.hourly : 0} onChange={this.handleChange} />
-                            </div>
-                            <div className="row">
-                                <input type="submit" />
-                            </div>
-                        </form>
-                        {this.state.edit ? null : <button onClick={this.handleEdit} className="btn btn-primary">Edit</button>}
-                    </div>
-                </div>
-            </div>
+            <Card>
+                <Accordion.Toggle as={Card.Header} eventKey="budget">Budget</Accordion.Toggle>
+                <Accordion.Collapse eventKey="budget">
+                    <Card.Body>
+                        <Form noValidate onSubmit={this.handleSubmit}>
+                            <Form.Row>
+                                <Form.Group as={Col}>
+                                    <Form.Label>Name</Form.Label>
+                                    <Form.Control as='input' type='text'
+                                        defaultValue={this.state.current.hasOwnProperty('budgetSchedule') ? this.state.current.budgetSchedule.hourly : 0}
+                                        onChange={this.handleChange} />
+                                </Form.Group>
+                            </Form.Row>
+                        </Form>
+                    </Card.Body>
+                </Accordion.Collapse>
+            </Card>
+
         )
     }
 }
@@ -187,7 +156,7 @@ class CampaignMetadata extends React.Component {
     render() {
 
         return (<tr className='m-1' id={this.state.campaign.id} onClick={() => this.props.showCampaign(this.state.campaign)}>
-            <td scope='row'>{this.state.campaign.id}</td>
+            <td>{this.state.campaign.id}</td>
             <td>{this.state.campaign.name}</td>
             <td>{this.state.campaign.status}</td>
             <td>{this.state.campaign.schedule.start}</td>
@@ -205,6 +174,7 @@ class Campaigns extends React.Component {
             show: false,
             campaign: null,
             campaigns: this.props.campaigns,
+            creatives: this.props.creatives
         }
     }
 
@@ -235,7 +205,7 @@ class Campaigns extends React.Component {
         if (this.state.campaign != null) {
             return (
                 <div className='container'>
-                    <LucentCampaign campaign={this.state.campaign} />
+                    <LucentCampaign campaign={this.state.campaign} creatives={this.state.creatives} />
                     <button className="btn-secondary" onClick={this.hideCampaign}>Back</button>
                 </div>)
         }
@@ -275,6 +245,7 @@ class LucentCampaign extends React.Component {
 
         this.state = {
             campaign: this.props.campaign,
+            creatives: this.props.creatives,
             updated: false
         }
     }
@@ -286,11 +257,14 @@ class LucentCampaign extends React.Component {
     render() {
         let updatePanel = this.state.updated ? <div className="row d-flex justify-content-center"><button className="btn btn-primary">Update</button><button className="btn btn-secondary">Cancel</button></div> : <div className="row"></div>;
         let currentView =
-            <div id="accordion">
+            <Accordion defaultActiveKey="campaign-summary">
                 {updatePanel}
                 <CampaignSummary campaign={this.state.campaign} onUpdate={this.onUpdate} />
+                <CampaignFilters campaign={this.state.campaign} onUpdate={this.onUpdate} />
+                <CampaignTargets campaign={this.state.campaign} onUpdate={this.onUpdate} />
                 <CampaignBudget campaign={this.state.campaign} onUpdate={this.onUpdate} />
-            </div>;
+                <CampaignCreative campaign={this.state.campaign} creatives={this.state.creatives} onUpdate={this.onUpdate} />
+            </Accordion>;
 
         return currentView;
     }

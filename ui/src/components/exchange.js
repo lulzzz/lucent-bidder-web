@@ -1,10 +1,4 @@
 import React from 'react';
-import { toUIexchange, getAllexchanges, getexchange, updateexchange, fromUIexchange, createexchange } from "../util"
-import { Form, FormControl } from 'react-jsonschema-form'
-import Button from 'react-bootstrap/Button'
-import Nav from 'react-bootstrap/Nav'
-import Navbar from 'react-bootstrap/Navbar'
-import NavDropdown from 'react-bootstrap/NavDropdown'
 import Campaigns from './campaign'
 
 
@@ -128,7 +122,7 @@ class ExchangeBudget extends React.Component {
 
     handleChange(e) {
         let v = parseInt(e.target.value)
-        if (v != NaN) {
+        if (!isNaN(v)) {
             let currentJson = this.state.current.budgetSchedule;
             if (currentJson == null) currentJson = {}
             currentJson[e.target.name] = v

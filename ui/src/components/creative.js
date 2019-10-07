@@ -1,10 +1,4 @@
 import React from 'react';
-import { toUICreative, getAllCreatives, getCreative, updateCreative, fromUICreative, createCreative } from "../util"
-import { Form, FormControl } from 'react-jsonschema-form'
-import Button from 'react-bootstrap/Button'
-import Nav from 'react-bootstrap/Nav'
-import Navbar from 'react-bootstrap/Navbar'
-import NavDropdown from 'react-bootstrap/NavDropdown'
 
 class CreativeSummary extends React.Component {
 
@@ -122,7 +116,7 @@ class CreativeBudget extends React.Component {
 
     handleChange(e) {
         let v = parseInt(e.target.value)
-        if (v != NaN) {
+        if (!isNaN(v)) {
             let currentJson = this.state.current.budgetSchedule;
             if (currentJson == null) currentJson = {}
             currentJson[e.target.name] = v
@@ -170,7 +164,7 @@ class ContentMetadata extends React.Component {
 
         return (<tr className='m-1' id={this.state.content.id}>
             <td>{this.state.name}</td>
-            <td scope='row'>{this.state.content.id}</td>
+            <td>{this.state.content.id}</td>
             <td>{this.state.content.mime_type}</td>
             <td>{this.state.content.h}x{this.state.content.w}</td>
         </tr>)
