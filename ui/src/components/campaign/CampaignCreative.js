@@ -56,7 +56,7 @@ class CampaignCreative extends React.Component {
                             <Accordion>
                                 {this.state.creatives.map(creative =>
                                     (
-                                        <Form.Row>
+                                        <Form.Row key={creative.id} >
                                             <Form.Group as={Col}>
                                                 <CreativeGroup creative={creative} />
                                             </Form.Group>

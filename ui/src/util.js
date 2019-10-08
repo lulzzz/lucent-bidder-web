@@ -65,31 +65,38 @@ const fromScheduleType = (i) => {
     }
 }
 
-export const fromUICampaign = (campaign) => {
-    if (campaign == null) return null;
+export const fromUICampaign = (uiCampaign) => {
+    if (uiCampaign == null) return null;
+
+    let campaign = { ...uiCampaign }
+
+    if (campaign.etag)
+        delete campaign.etag;
 
     if (campaign.status != null)
-        campaign.status = toCampaignStatus(campaign.status);
+        campaign.status = toCampaignStatus(uiCampaign.status);
 
     if (campaign.schedule != null) {
-        campaign.schedule.start = toFiletime(campaign.schedule.start);
-        campaign.schedule.end = toFiletime(campaign.schedule.end);
+        campaign.schedule.start = toFiletime(uiCampaign.schedule.start);
+        campaign.schedule.end = toFiletime(uiCampaign.schedule.end);
         if (campaign.schedule.end == null)
             delete campaign.schedule.end;
     }
 
     if (campaign.filters != null) {
-        campaign['jsonFilters'] = campaign.filters;
+        campaign['jsonFilters'] = uiCampaign.filters;
         delete campaign.filters;
     }
 
     if (campaign.targets != null) {
-        campaign['jsonTargets'] = campaign.targets;
+        campaign['jsonTargets'] = uiCampaign.targets;
         delete campaign.targets;
     }
 
     if (campaign.budgetSchedule != null)
-        campaign.budgetSchedule.type = toScheduleType(campaign.budgetSchedule.type);
+        campaign.budgetSchedule.type = toScheduleType(uiCampaign.budgetSchedule.type);
+
+    console.log('sending: ' + JSON.stringify(campaign))
 
     return campaign;
 }
@@ -97,20 +104,24 @@ export const fromUICampaign = (campaign) => {
 export const toUICampaign = (campaign) => {
     if (campaign == null) return null;
 
-    if (campaign.status != null)
-        campaign.status = fromCampaignStatus(campaign.status);
+    let uiCampaign = { ...campaign }
 
-    if (campaign.schedule != null) {
-        campaign.schedule.start = toDateTime(campaign.schedule.start);
-        campaign.schedule.end = toDateTime(campaign.schedule.end);
-        if (campaign.schedule.end == null)
-            delete campaign.schedule.end;
+    console.log(JSON.stringify(uiCampaign));
+
+    if (uiCampaign.status != null)
+        uiCampaign.status = fromCampaignStatus(campaign.status);
+
+    if (uiCampaign.schedule != null) {
+        uiCampaign.schedule.start = toDateTime(campaign.schedule.start);
+        uiCampaign.schedule.end = toDateTime(campaign.schedule.end);
+        if (uiCampaign.schedule.end == null)
+            delete uiCampaign.schedule.end;
     }
 
-    if (campaign.budgetSchedule != null)
-        campaign.budgetSchedule.type = fromScheduleType(campaign.budgetSchedule.type);
+    if (uiCampaign.budgetSchedule != null)
+        uiCampaign.budgetSchedule.type = fromScheduleType(campaign.budgetSchedule.type);
 
-    return campaign;
+    return uiCampaign;
 }
 
 export const getAllCreatives = () => {
@@ -154,7 +165,8 @@ export const createCampaign = (campaign) => {
 }
 
 export const updateCampaign = (campaign) => {
-    return Axios.put('https://orchestration.lucentbid.com/api/campaigns/' + campaign.id, fromUICampaign(campaign), { headers: { 'x-lucent-etag': campaign.etag } }).then((resp) => {
+    let etag = campaign.etag;
+    return Axios.put('https://orchestration.lucentbid.com/api/campaigns/' + campaign.id, fromUICampaign(campaign), { headers: { 'x-lucent-etag': etag } }).then((resp) => {
         if (resp.status === 202) {
             let campaign = resp.data
 
@@ -171,7 +183,7 @@ export const getCampaign = (id) => {
         if (resp.status === 200) {
             let campaign = resp.data
 
-            campaign['etag'] = resp.headers['x-lucent-etag']
+            campaign.etag = resp.headers['x-lucent-etag']
             return toUICampaign(campaign);
         }
 

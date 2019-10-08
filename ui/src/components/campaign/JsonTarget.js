@@ -17,14 +17,18 @@ class JsonTarget extends React.Component {
         this.filterChanged = this.filterChanged.bind(this);
 
         this.state = {
-            original: this.props.target != null ? this.props.target : {},
             edit: false,
             updated: false,
-            current: this.props.target != null ? { ...this.props.target } : {},
+            target: { ...this.props.target },
             show: false,
             modalValue: '',
             selectedValue: ''
         }
+    }
+
+    componentWillReceiveProps(newProps) {
+        console.log(JSON.stringify(newProps.target))
+        this.setState({ updated: JSON.stringify(newProps.target) !== JSON.stringify(this.state.target) })
     }
 
     mapProperties(val) {
@@ -58,19 +62,19 @@ class JsonTarget extends React.Component {
 
     filterChanged(e) {
 
-        let current = this.state.current;
+        let target = this.state.target;
 
         switch (e.target.name) {
             case 'modifier':
-                current[e.target.name] = parseFloat(e.target.value);
+                target[e.target.name] = parseFloat(e.target.value);
                 break;
             case 'property':
             case 'operation':
             case 'entity':
-                current[e.target.name] = e.target.value;
+                target[e.target.name] = e.target.value;
                 break;
             case 'value':
-                current[e.target.name] = e.target.value;
+                target[e.target.name] = e.target.value;
                 break;
             case 'values':
                 break;
@@ -79,10 +83,10 @@ class JsonTarget extends React.Component {
                 break;
         }
 
-        this.setState({ current: current, updated: true })
+        this.setState({ target: target, updated: true })
 
         if (this.props.onChanged != null) {
-            this.props.onChanged({ target: current, index: this.props.index })
+            this.props.onChanged({ target: target, index: this.props.index })
         }
     }
 
@@ -115,8 +119,8 @@ class JsonTarget extends React.Component {
     }
 
     handleClose(e) {
-        let current = this.state.current;
-        let values = this.state.current.hasOwnProperty('values') ? this.state.current.values : []
+        let target = this.state.target;
+        let values = this.state.target.hasOwnProperty('values') ? this.state.target.values : []
         let newObj = {}
 
         try {
@@ -126,8 +130,8 @@ class JsonTarget extends React.Component {
                     delete newObj.dval
                 } else {
                     values.push(newObj)
-                    current['values'] = values
-                    this.setState({ show: false, modalValue: '', current: current, updated: true })
+                    target['values'] = values
+                    this.setState({ show: false, modalValue: '', target: target, updated: true })
                     return
                 }
             }
@@ -141,8 +145,8 @@ class JsonTarget extends React.Component {
                 delete newObj.ival
             } else {
                 values.push(newObj)
-                current['values'] = values
-                this.setState({ show: false, modalValue: '', current: current, updated: true })
+                target['values'] = values
+                this.setState({ show: false, modalValue: '', target: target, updated: true })
                 return
             }
         } catch (e) {
@@ -159,14 +163,13 @@ class JsonTarget extends React.Component {
             newObj['sval'] = val
         }
         values.push(newObj)
-        current['values'] = values
-        this.setState({ show: false, modalValue: '', current: current, updated: true })
+        target['values'] = values
+        this.setState({ show: false, modalValue: '', target: target, updated: true })
     }
 
     removeValue(e) {
-        console.log(JSON.stringify(this.state.selectedValue))
-        if (this.state.selectedValue != null && this.state.current.hasOwnProperty('values')) {
-            let values = this.state.current.values;
+        if (this.state.selectedValue != null && this.state.target.hasOwnProperty('values')) {
+            let values = this.state.target.values;
 
             let newValues = [];
             values.forEach((v) => {
@@ -176,10 +179,10 @@ class JsonTarget extends React.Component {
                 }
             })
 
-            let current = this.state.current;
-            current['values'] = newValues;
+            let target = this.state.target;
+            target['values'] = newValues;
 
-            this.setState({ current: current, updated: true })
+            this.setState({ target: target, updated: true })
         }
     }
 
@@ -205,18 +208,18 @@ class JsonTarget extends React.Component {
 
     render() {
 
-        var entity = this.state.current.hasOwnProperty('entity') ? this.state.current.entity : '';
-        var property = this.state.current.hasOwnProperty('property') ? this.state.current.property : ''
-        var operation = this.state.current.hasOwnProperty('operation') ? this.state.current.operation : 'eq';
-        var multiplier = this.state.current.hasOwnProperty('modifier') ? this.state.current.modifier : 0;
+        var entity = this.state.target.hasOwnProperty('entity') ? this.state.target.entity : '';
+        var property = this.state.target.hasOwnProperty('property') ? this.state.target.property : ''
+        var operation = this.state.target.hasOwnProperty('operation') ? this.state.target.operation : 'eq';
+        var multiplier = this.state.target.hasOwnProperty('modifier') ? this.state.target.modifier : 0;
         var value = null;
         var values = []
 
-        if (this.state.current.hasOwnProperty('value'))
-            values.push(this.extractValue(this.state.current.value))
+        if (this.state.target.hasOwnProperty('value'))
+            values.push(this.extractValue(this.state.target.value))
 
-        if (this.state.current.hasOwnProperty('values'))
-            this.state.current.values.forEach(v => values.push(this.extractValue(v)));
+        if (this.state.target.hasOwnProperty('values'))
+            this.state.target.values.forEach(v => values.push(this.extractValue(v)));
 
         switch (operation) {
             case 'in':

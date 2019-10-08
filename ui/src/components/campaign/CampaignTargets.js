@@ -6,6 +6,7 @@ import Card from 'react-bootstrap/Card'
 import CardColumn from 'react-bootstrap/CardColumns'
 import Button from 'react-bootstrap/Button'
 import Accordion from 'react-bootstrap/Accordion'
+import ButtonToolbar from 'react-bootstrap/ButtonToolbar'
 
 class CampaignTargets extends React.Component {
 
@@ -14,48 +15,45 @@ class CampaignTargets extends React.Component {
 
         this.handleSubmit = this.handleSubmit.bind(this);
 
-        let currentJson = {}
-        if (this.props.campaign != null) {
-            currentJson['name'] = this.props.campaign.name;
-        }
+        let targets = []
+        this.props.targets.forEach(t => targets.push(t));
 
         this.state = {
-            summary: this.props.summary,
-            edit: false,
-            campaign: this.props.campaign,
-            current: currentJson,
-            updated: false
+            targets: targets,
+            updated: false,
         }
+    }
+
+    componentWillReceiveProps(newProps){
+        this.setState({updated: JSON.stringify(newProps.targets) !== JSON.stringify(this.state.targets)})
     }
 
     handleSubmit(e) {
         e.preventDefault();
         if (this.state.updated && this.props.onUpdate != null) {
-            let campaign = this.state.campaign;
-            if (campaign == null) campaign = {}
-            campaign['name'] = this.state.current['name'];
-
-            this.props.onUpdate(campaign)
-            this.setState({ edit: false, campaign: campaign })
+            this.props.onUpdate(this.state.targets)
+            this.setState({ edit: false })
         }
         else
             this.setState({ edit: false })
     }
 
     targetChanged(e) {
-        console.log('Recieved: ' + JSON.stringify(e.target))
-        console.log('Previous: (' + e.index + ') ' + JSON.stringify(this.state.campaign.jsonTargets[e.index]))
+        let targets = this.state.targets;
+        targets[e.index] = e.target;
+        this.setState({ targets: targets, updated: true })
     }
 
     render() {
 
-        var targets = null;
-        if (this.state.campaign.hasOwnProperty('jsonTargets')) {
-            targets = []
-            this.state.campaign.jsonTargets.forEach((target, i) => {
-                targets.push(<JsonTarget key={i} target={target} index={i} onChanged={this.targetChanged.bind(this)} />)
-            });
-        }
+        var targets = [];
+        this.props.targets.forEach((target, i) => {
+            targets.push(<JsonTarget key={i} target={target} index={i} onChanged={this.targetChanged.bind(this)} />)
+        });
+
+        var submit = null;
+        if (this.state.updated)
+            submit = (<Button variant='success' type='submit'>Save</Button>)
 
         return (
             <Card>
@@ -65,7 +63,10 @@ class CampaignTargets extends React.Component {
                         <Form noValidate onSubmit={this.handleSubmit}>
                             <Form.Row>
                                 <Form.Group>
-                                    <Button variant='primary'>Add</Button>
+                                    <ButtonToolbar>
+                                        <Button variant='primary'>Add</Button>
+                                        {submit}
+                                    </ButtonToolbar>
                                 </Form.Group>
                             </Form.Row>
                             <Form.Row>

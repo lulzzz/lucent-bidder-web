@@ -6,6 +6,7 @@ import Accordion from 'react-bootstrap/Accordion'
 import CampaignTargets from './campaign/CampaignTargets'
 import CampaignFilters from './campaign/CampaignFilters'
 import CampaignCreative from './campaign/CampaignCreative';
+import { updateCampaign, getCampaign } from '../util'
 
 class CampaignSummary extends React.Component {
 
@@ -182,7 +183,7 @@ class Campaigns extends React.Component {
         if (e == null) return
         if (this.state.campaigns != null) {
             let c = this.state.campaigns.find((c) => { return c.id === e.id; })
-            this.setState({ campaign: c })
+            getCampaign(c.id).then(data => this.setState({ campaign: data }))
         } else {
             console.log('ERROR: This shouldn\'t be possible')
         }
@@ -225,7 +226,7 @@ class Campaigns extends React.Component {
                 </thead>
                 <tbody>
                     {
-                        this.state.campaigns.map((item, key) => {
+                        this.state.campaigns.map(item => {
                             return <CampaignMetadata campaign={item} key={item.id} showCampaign={this.showCampaign} />
                         })
                     }
@@ -242,9 +243,10 @@ class LucentCampaign extends React.Component {
         super(props, context);
 
         this.onUpdate = this.onUpdate.bind(this);
+        console.log('sending : ' + JSON.stringify(this.props.campaign))
 
         this.state = {
-            campaign: this.props.campaign,
+            campaign: {...this.props.campaign},
             creatives: this.props.creatives,
             updated: false
         }
@@ -254,14 +256,23 @@ class LucentCampaign extends React.Component {
         this.setState({ campaign: campaign, updated: true })
     }
 
+    onTargetUpdate(targets) {
+        console.log(JSON.stringify(targets));
+        let campaign = this.state.campaign;
+        campaign.targets = targets;
+
+        updateCampaign(campaign).then(data => {
+            console.log('Recieved: ' + JSON.stringify(data));
+            this.setState({ campaign: data });
+        })
+    }
+
     render() {
-        let updatePanel = this.state.updated ? <div className="row d-flex justify-content-center"><button className="btn btn-primary">Update</button><button className="btn btn-secondary">Cancel</button></div> : <div className="row"></div>;
         let currentView =
             <Accordion defaultActiveKey="campaign-summary">
-                {updatePanel}
                 <CampaignSummary campaign={this.state.campaign} onUpdate={this.onUpdate} />
                 <CampaignFilters campaign={this.state.campaign} onUpdate={this.onUpdate} />
-                <CampaignTargets campaign={this.state.campaign} onUpdate={this.onUpdate} />
+                <CampaignTargets targets={this.state.campaign.jsonTargets || []} onUpdate={this.onTargetUpdate.bind(this)} />
                 <CampaignBudget campaign={this.state.campaign} onUpdate={this.onUpdate} />
                 <CampaignCreative campaign={this.state.campaign} creatives={this.state.creatives} onUpdate={this.onUpdate} />
             </Accordion>;
